@@ -1,7 +1,8 @@
 export interface User {
-  id: string;
-  name: string;
-  email: string;
+  id?: string;
+  username?: string;
+  name?: string;
+  email?: string;
 }
 
 export interface Blog {
@@ -25,7 +26,9 @@ export interface RegisterCredentials {
 }
 
 export interface AuthResponse {
-  token: string;
+  success?: boolean;
+  message?: string;
+  token?: string;
   user?: User;
   data?: any;
 }

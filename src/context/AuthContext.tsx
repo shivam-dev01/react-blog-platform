@@ -4,7 +4,6 @@ import { authApi } from '../api/auth';
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
   logout: () => void;
@@ -28,84 +27,93 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Load user and token from localStorage on mount
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
+  const persistUser = (userData: User) => {
+    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('isLoggedIn', 'true');
+    setUser(userData);
+  };
 
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+  const deriveUser = (
+    credentials: Partial<RegisterCredentials> & LoginCredentials,
+    apiUser?: User
+  ): User => {
+    const email = apiUser?.email || credentials.email;
+    const nameFromEmail = email ? email.split('@')[0] : "guest";
+  
+    const baseUsername =
+      apiUser?.username ||
+      apiUser?.name ||
+      credentials.name ||
+      nameFromEmail; //  
+  
+    return {
+      id: apiUser?.id,
+      username: baseUsername,
+      name: apiUser?.name || credentials.name || baseUsername,
+      email,
+    };
+  };
+
+  // Load login state on refresh
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    const loggedIn = localStorage.getItem('isLoggedIn');
+
+    if (loggedIn === 'true' && savedUser) {
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (err) {
+        console.error('Failed to parse stored user', err);
+      }
     }
+
     setLoading(false);
   }, []);
 
-  // LOGIN
+  // LOGIN WITHOUT TOKEN
   const login = async (credentials: LoginCredentials) => {
-    try {
-      const response = await authApi.login(credentials);
+    const response = await authApi.login(credentials);
+    console.log("API Login Response:", response);
 
-      // Extract token and user from nested data
-      const newToken = response?.data?.data?.token;
-      const newUser = response?.data?.data?.user;
+    const success = response?.success ?? (response as any)?.data?.success;
 
-      if (!newToken) {
-        console.error('TOKEN MISSING IN RESPONSE:', response);
-        throw new Error('Login failed: Token not received');
-      }
-
-      setToken(newToken);
-      setUser(newUser || null);
-
-      localStorage.setItem('token', newToken);
-      localStorage.setItem('user', JSON.stringify(newUser));
-    } catch (error) {
-      throw error;
+    if (success) {
+      const mappedUser = deriveUser(credentials, response.user);
+      persistUser(mappedUser);
+    } else {
+      throw new Error('Login failed');
     }
   };
 
-  // REGISTER
+  // REGISTER WITHOUT TOKEN
   const register = async (credentials: RegisterCredentials) => {
-    try {
-      const response = await authApi.register(credentials);
+    const response = await authApi.register(credentials);
 
-      // Extract token and user from nested data
-      const newToken = response?.data?.data?.token;
-      const newUser = response?.data?.data?.user;
+    const success = response?.success ?? (response as any)?.data?.success;
 
-      if (!newToken) {
-        console.error('TOKEN MISSING IN RESPONSE:', response);
-        throw new Error('Registration failed: Token not received');
-      }
-
-      setToken(newToken);
-      setUser(newUser || null);
-
-      localStorage.setItem('token', newToken);
-      localStorage.setItem('user', JSON.stringify(newUser));
-    } catch (error) {
-      throw error;
+    if (success) {
+      const mappedUser = deriveUser(credentials, response.user);
+      persistUser(mappedUser);
+    } else {
+      throw new Error('Registration failed');
     }
   };
 
   // LOGOUT
   const logout = () => {
-    setToken(null);
-    setUser(null);
-    localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('isLoggedIn');
+    setUser(null);
   };
 
   const value: AuthContextType = {
     user,
-    token,
     login,
     register,
     logout,
-    isAuthenticated: !!token,
+    isAuthenticated: user !== null,
     loading,
   };
 

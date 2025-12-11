@@ -73,12 +73,14 @@ const BlogDetails: React.FC = () => {
     );
   }
 
+  const displayAuthor = (blog.author || 'Unknown author').split('-')[0].trim() || 'Unknown author';
+
   return (
     <div className="pt-24 pb-12 min-h-screen bg-gray-50 flex flex-col items-center">
       <div className="max-w-4xl w-full px-4 sm:px-6 lg:px-8 flex flex-col">
         <article className="bg-white rounded-2xl shadow-md p-8 mb-8 transition-transform transform hover:-translate-y-1">
           <h1 className="text-4xl font-bold mb-4 text-gray-900">{blog.title}</h1>
-          <p className="text-gray-600 mb-6">By {blog.author} ~</p>
+          <p className="text-gray-600 mb-6">By {displayAuthor} ~</p>
           <div className="prose max-w-none text-gray-700 whitespace-pre-wrap leading-relaxed">
             {blog.content}
           </div>
