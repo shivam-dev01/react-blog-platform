@@ -17,6 +17,7 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between h-16">
           <div className="flex">
             <Link to="/" className="flex items-center px-2 py-2 text-xl font-bold text-blue-600">
+              <img src="/logo.svg" alt="USI Logo" className="h-10 w-auto mr-3" />
               Blog Platform
             </Link>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
