@@ -30,7 +30,9 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
 
         <div className="mt-auto flex items-center justify-between">
           <p className="text-sm text-gray-500">By {displayAuthor} ~</p>
-          {id ? (
+
+
+          {/* {id ? (
             <Link
             to={`/blogs/${blog.blogId}`}
               className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-300"
@@ -39,7 +41,26 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
             </Link>
           ) : (
             <span className="text-gray-400 text-sm">Missing blog id</span>
+          )} */}
+
+
+
+          {id ? (
+            <Link
+              to={`/blogs/${id}`}
+              className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-300"
+            >
+              Read more →
+            </Link>
+          ) : (
+            <span className="text-gray-400 text-sm">Missing blog id</span>
           )}
+
+
+
+
+
+
         </div>
       </div>
     </div>

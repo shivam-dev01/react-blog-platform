@@ -32,3 +32,11 @@ export interface AuthResponse {
   user?: User;
   data?: any;
 }
+
+export interface Comment {
+  id: string;
+  blogId: string;
+  author: string;
+  content: string;
+  timestamp: string;
+}
