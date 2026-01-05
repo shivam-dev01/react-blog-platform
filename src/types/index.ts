@@ -1,11 +1,12 @@
 export interface User {
-  id: string;
-  username: string;
-  email: string;
+  id?: string;
+  username?: string;
+  name?: string;
+  email?: string;
 }
 
 export interface Blog {
-  id: string;
+  blogId: string;
   title: string;
   content: string;
   author: string;
@@ -19,13 +20,23 @@ export interface LoginCredentials {
 }
 
 export interface RegisterCredentials {
-  username: string;
+  name: string;
   email: string;
   password: string;
 }
 
 export interface AuthResponse {
-  token: string;
+  success?: boolean;
+  message?: string;
+  token?: string;
   user?: User;
+  data?: any;
 }
 
+export interface Comment {
+  id: string;
+  blogId: string;
+  author: string;
+  content: string;
+  timestamp: string;
+}

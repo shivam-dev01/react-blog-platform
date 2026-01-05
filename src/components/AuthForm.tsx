@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
+import { LoginCredentials, RegisterCredentials } from '../types';
 
-interface AuthFormProps {
-  onSubmit: (credentials: { email: string; password: string; username?: string }) => Promise<void>;
+interface AuthFormProps<T> {
+  onSubmit: (credentials: T) => Promise<void>;
   isLogin: boolean;
 }
 
-const AuthForm: React.FC<AuthFormProps> = ({ onSubmit, isLogin }) => {
+const AuthForm = <T extends LoginCredentials | RegisterCredentials>({
+  onSubmit,
+  isLogin,
+}: AuthFormProps<T>) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -21,7 +25,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSubmit, isLogin }) => {
       return;
     }
 
-    if (!isLogin && !username) {
+    if (!isLogin && !name) {
       setError('Please fill in all fields');
       return;
     }
@@ -29,9 +33,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSubmit, isLogin }) => {
     setLoading(true);
     try {
       if (isLogin) {
-        await onSubmit({ email, password });
+        await onSubmit({ email, password } as T);
       } else {
-        await onSubmit({ email, password, username });
+        await onSubmit({ email, password, name } as T);
       }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Authentication failed. Please try again.');
@@ -50,16 +54,16 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSubmit, isLogin }) => {
 
       {!isLogin && (
         <div>
-          <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-            Username
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+            Name
           </label>
           <input
             type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Enter your username"
+            placeholder="Enter your name"
             required
           />
         </div>
@@ -100,11 +104,10 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSubmit, isLogin }) => {
         disabled={loading}
         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {loading ? (isLogin ? 'Logging in...' : 'Signing up...') : (isLogin ? 'Login' : 'Sign Up')}
+        {loading ? (isLogin ? 'Logging in...' : 'Signing up...') : isLogin ? 'Login' : 'Sign Up'}
       </button>
     </form>
   );
 };
 
 export default AuthForm;
-

@@ -5,8 +5,12 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        geist: ["Geist", "sans-serif"],
+        geistMono: ["Geist Mono", "monospace"],
+      },
+    },
   },
   plugins: [],
-}
-
+};
